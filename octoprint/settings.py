@@ -100,6 +100,14 @@ default_settings = {
 	"api": {
 		"enabled": False,
 		"key": ''.join('%02X' % ord(z) for z in uuid.uuid4().bytes)
+	},
+	"googleApi": {
+		"clientId": "",
+		"clientSecret": "",
+		"authenticated": False,
+		"accessToken": "",
+		"idToken": "",
+		"refreshToken": ""
 	}
 }
 

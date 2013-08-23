@@ -16,6 +16,7 @@ import subprocess
 from octoprint.printer import Printer, getConnectionOptions
 from octoprint.settings import settings, valid_boolean_trues
 import octoprint.timelapse
+import octoprint.timeline
 import octoprint.gcodefiles as gcodefiles
 import octoprint.util as util
 import octoprint.users as users
@@ -31,6 +32,7 @@ app = Flask("octoprint")
 # In order that threads don't start too early when running as a Daemon
 printer = None
 timelapse = None
+timeline = None
 
 gcodeManager = None
 userManager = None
@@ -850,6 +852,7 @@ class Server():
 		global gcodeManager
 		global userManager
 		global eventManager
+		global timeline
 		
 		from tornado.wsgi import WSGIContainer
 		from tornado.httpserver import HTTPServer
@@ -866,6 +869,9 @@ class Server():
 		eventManager = events.eventManager()
 		gcodeManager = gcodefiles.GcodeManager()
 		printer = Printer(gcodeManager)
+
+		timeline = octoprint.timeline.Timeline(printer)
+		#timeline.postToTimeline()
 
 		# setup system and gcode command triggers
 		events.SystemCommandTrigger(printer)
