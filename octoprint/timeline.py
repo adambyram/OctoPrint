@@ -32,7 +32,7 @@ class Timeline(object):
 		self._http = httplib2.Http()
   		self._http = self._credentials.authorize(self._http)
 		self._printer = printer
-		self._currentProgress = 0
+		self._currentPercentComplete = 0
 		eventManager().subscribe("PrintStarted", self.onPrintStarted)
 		eventManager().subscribe("PrintFailed", self.onPrintDone)
 		eventManager().subscribe("PrintDone", self.onPrintDone)
@@ -63,14 +63,21 @@ class Timeline(object):
 		eventManager().unsubscribe("ZChange", self.onPrintProgress)
 
 	def onPrintStarted(self, event, payload):
-		self._currentProgress = 0
+		self._currentPercentComplete = 0
 		self.postToTimeline("", "Print Started")
 
 	def onPrintDone(self, event, payload):
-		self._currentProgress = 100
+		self._currentPercentComplete = 100
 		self.postToTimeline("", "Print Complete")
 
 	def onPrintProgress(self, event, payload):
-		progress = self._printer.getCurrentData()["progress"]
+		progressData = self._printer.getCurrentData()["progress"]
+		percentComplete = int(round(progressData["progress"]*100.0))
+		percentChangeSinceLastUpdate = percentComplete - self._currentPercentComplete
 
-		#self.postToTimeline("", progress + '% Complete')
+		if percentChangeSinceLastUpdate >= 10:
+			if progressData["printTimeLeft"] is not None:
+				self.postToTimeline("", '{0}% | {1} Remaining'.format(percentComplete,progressData["printTimeLeft"]))
+			else:
+				self.postToTimeline("", '{0}% Complete'.format(percentComplete))
+			self._currentPercentComplete = percentComplete
