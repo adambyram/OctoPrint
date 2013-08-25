@@ -33,6 +33,8 @@ class Timeline(object):
 		self._logger.debug("Timeline initialized")
 		self._credentials = client.OAuth2Credentials(self._accessToken, self._clientId, self._clientSecret, self._refreshToken, 3600, "https://accounts.google.com/o/oauth2/token", "OctoPrint")
 		self._http = httplib2.Http()
+		# Validation doesn't work for some reason unless running as root - so disable for now
+		self._http.disable_ssl_certificate_validation = True
   		self._http = self._credentials.authorize(self._http)
 		self._printer = printer
 		self._snapshotUrl = settings().get(["webcam", "snapshot"])
